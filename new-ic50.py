@@ -7,13 +7,24 @@ import pandas as pd
 import numpy as np
 import random
 
+# 定义设备
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+# 定义原子特征
 def atom_feature(atom):
-    return one_of_k_encoding_unk(atom.GetSymbol(),
-                                  ['C', 'N', 'O', 'S', 'F', 'P', 'Cl', 'Br', 'I']) + \
-           one_of_k_encoding(atom.GetDegree(), [0, 1, 2, 3, 4, 5]) + \
-           one_of_k_encoding_unk(atom.GetTotalNumHs(), [0, 1, 2, 3, 4]) + \
-           one_of_k_encoding_unk(atom.GetImplicitValence(), [0, 1, 2, 3, 4, 5]) + \
-           [atom.GetIsAromatic()]
+    return [
+        atom.GetAtomicNum(),
+        atom.GetDegree(),
+        atom.GetFormalCharge(),
+        atom.GetNumRadicalElectrons(),
+        atom.GetHybridization().real,
+        atom.IsInRing()
+    ]
+
+# 去掉图中的自环
+def remove_self_loops(edge_index):
+    mask = edge_index[0] != edge_index[1]
+    return edge_index[:, mask], None
 
 # 读取和处理数据
 def process_data(csv_file):
