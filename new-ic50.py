@@ -1,7 +1,8 @@
 import torch
 import torch.nn.functional as F
 from torch_geometric.nn import GATConv
-from torch_geometric.data import Data, DataLoader
+from torch_geometric.loader import DataLoader
+from torch_geometric.data import Data
 from rdkit import Chem
 import pandas as pd
 import numpy as np
@@ -59,9 +60,9 @@ def process_data(csv_file):
 class GAT(torch.nn.Module):
     def __init__(self):
         super(GAT, self).__init__()
-        self.conv1 = GATConv(75, 64, heads=8, dropout=0.6)
+        self.conv1 = GATConv(6, 64, heads=8, dropout=0.6)
         self.conv2 = GATConv(64*8, 32, dropout=0.6)
-        self.lin1 = torch.nn.Linear(32, 16)
+        self.lin1 = torch.nn.Linear(64, 16)
         self.lin2 = torch.nn.Linear(16, 1)
 
     def forward(self, x, edge_index):
